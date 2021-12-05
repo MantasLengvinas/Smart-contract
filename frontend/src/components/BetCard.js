@@ -8,12 +8,10 @@ class BetCard extends Component {
     render() {
 
         return (
-            <div className="betCard">
+            <div className="betCard ended">
                 <div className="betCardBody">
                     <h5>Title</h5>
-                    <h6>Betting phase duration:  seconds</h6>
-                    <h6>Voting phase duration:  seconds</h6>
-                    <h6>Vote amount:  ETH</h6>
+                    <h6>Vote price:  ETH</h6>
                     <h6>Minimum amount of betters: </h6>
                     <h6>Current state: </h6>
                     <p>Betters for: </p>

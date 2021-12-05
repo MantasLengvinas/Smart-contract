@@ -1,11 +1,7 @@
 import React, {Component} from "react";
-import logo from '../BET_Logo.svg';
+import logo from '../photos/BET_Logo.svg';
 
 class Header extends Component {
-    constructor() {
-        super();
-    }
-
     render() {
         return (
             <div className="App-header">

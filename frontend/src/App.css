@@ -44,6 +44,11 @@
     cursor: pointer;
   }
 
+  .btn:hover {
+    color: #f1f1f1;
+    background-color: #373738;
+  }
+
 .bets-container{
   display: flex;
   justify-content: center;
@@ -53,7 +58,7 @@
   .bets{
     display: flex;
     flex-direction: row;
-    margin: 20px;
+    margin: 0 20px;
   }
   .betCard {
     margin: 10px;
@@ -62,10 +67,88 @@
   }
     .betCardBody > h5, .betCardBody > h6, .betCardBody > p {
       margin: 3px 0 3px 0;
-      font-size: 13px;
+      font-size: 16px;
     }
 .App-link {
   color: #61dafb;
+}
+
+.active {
+  position: relative;
+  z-index: 0;
+  width: 400px;
+  height: 300px;
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 2rem;
+}
+.active::before {
+  content: '';
+  position: absolute;
+  z-index: -2;
+  left: -50%;
+  top: -50%;
+  width: 200%;
+  height: 200%;
+  background-color: #007d08;
+  background-repeat: no-repeat;
+  background-size: 50% 50%, 50% 50%;
+  background-position: 0 0, 100% 0, 100% 100%, 0 100%;
+  background-image: linear-gradient(#007d08, #007d08), linear-gradient(#16b821, #16b821), linear-gradient(#52c75a, #52c75a);
+  animation: rotate 4s linear infinite;
+}
+.active::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: 6px;
+  top: 6px;
+  width: calc(100% - 12px);
+  height: calc(100% - 12px);
+  background: white;
+  border-radius: 5px;
+}
+
+.ended {
+  position: relative;
+  z-index: 0;
+  width: 400px;
+  height: 300px;
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 2rem;
+}
+.ended::before {
+  content: '';
+  position: absolute;
+  z-index: -2;
+  left: -50%;
+  top: -50%;
+  width: 200%;
+  height: 200%;
+  background-color: #b80000;
+  background-repeat: no-repeat;
+  background-size: 50% 50%, 50% 50%;
+  background-position: 0 0, 100% 0, 100% 100%, 0 100%;
+  background-image: linear-gradient(#b80000, #b80000), linear-gradient(#ff3d3d, #ff3d3d), linear-gradient(#e30000, #e30000);
+  animation: rotate 4s linear infinite;
+}
+.ended::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: 6px;
+  top: 6px;
+  width: calc(100% - 12px);
+  height: calc(100% - 12px);
+  background: white;
+  border-radius: 5px;
+}
+
+@keyframes rotate {
+	100% {
+		transform: rotate(1turn);
+	}
 }
 
 @keyframes App-logo-spin {
