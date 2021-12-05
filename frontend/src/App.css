@@ -15,15 +15,55 @@
 
 .App-header {
   background-color: #282c34;
-  min-height: 100vh;
+  height: 90px;
   display: flex;
-  flex-direction: column;
+  justify-content: start;
   align-items: center;
-  justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
 }
 
+.App-header > img {
+  margin: 0 0 0 20px;
+}
+
+.main {
+  height: 100%;
+  display: flex;
+}
+.side-menu {
+  display: flex;
+  width: 20%;
+  flex-direction: column;
+}
+  .btn{
+    color: #f1f1f1;
+    background-color: #282c34;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+  }
+
+.bets-container{
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  width: 80%;
+}
+  .bets{
+    display: flex;
+    flex-direction: row;
+    margin: 20px;
+  }
+  .betCard {
+    margin: 10px;
+    padding: 10px;
+    border: solid 1px #cccccc;
+  }
+    .betCardBody > h5, .betCardBody > h6, .betCardBody > p {
+      margin: 3px 0 3px 0;
+      font-size: 13px;
+    }
 .App-link {
   color: #61dafb;
 }
