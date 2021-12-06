@@ -51,5 +51,32 @@ contract Bet {
         minBetterCount = _minBetterCount;
         taxAddress = _taxAddress;
     }
+
+    function getState() public view returns (State){
+        uint256 timeStamp = block.timestamp - deployTime;
+
+        if(timeStamp < waitingTime){
+            return State.Initiated;
+        }
+        else if(timeStamp >= waitingTime && timeStamp < expirationTime){
+            return State.Pending;
+        }
+        else if(timeStamp >= expirationTime){
+            if(votersForCount > votersAgainstCount){
+                return State.ForWon;
+            }
+            else if(votersForCount < votersAgainstCount){
+                return State.AgainstWon;
+            }
+            else{
+                return State.Aborted;
+            }
+        }
+        else{
+            return State.Aborted;
+        }
+    }
+
+    
 }
 
