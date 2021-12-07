@@ -12,8 +12,8 @@ function AddBet(props) {
 
     const [desc, setDesc] = useState("");
     const [betPrice, setbetPrice] = useState(0);
-    const [betPhaseTime, setBetPhaseTime] = useState(0);
-    const [votePhaseTime, setVotePhaseTime] = useState(0);
+    const [bettingTime, setBettingTime] = useState(0);
+    const [votingTime, setVotingTime] = useState(0);
     const [minBetterCount, setMinBetterCount] = useState(1);
 
     const handleDescChange = (e) => {
@@ -22,11 +22,11 @@ function AddBet(props) {
     const handleBetPriceChange = (e) => {
         setbetPrice(e.target.value);
     };
-    const handleBetPhaseTimeChange = (e) => {
-        setBetPhaseTime(e.target.value);
+    const handleBettingTimeChange = (e) => {
+        setBettingTime(e.target.value);
     };
-    const handleVotePhaseTimeChange = (e) => {
-        setVotePhaseTime(e.target.value);
+    const handleVotingTimeChange = (e) => {
+        setVotingTime(e.target.value);
     };
     const handleMinBetterCountChange = (e) => {
         setMinBetterCount(e.target.value);
@@ -59,19 +59,19 @@ function AddBet(props) {
                         />
                     </Form.Group>
                     <Form.Group controlId="formWait">
-                        <Form.Label>Betting phase time (in seconds)</Form.Label>
+                        <Form.Label>Betting time (in seconds)</Form.Label>
                         <Form.Control
-                            placeholder="Betting phase time"
-                            onChange={handleBetPhaseTimeChange}
-                            value={betPhaseTime}
+                            placeholder="Betting time"
+                            onChange={handleBettingTimeChange}
+                            value={bettingTime}
                         />
                     </Form.Group>
                     <Form.Group controlId="formExp">
-                        <Form.Label>Voting phase time (in seconds)</Form.Label>
+                        <Form.Label>Voting time (in seconds)</Form.Label>
                         <Form.Control
-                            placeholder="Voting phase time"
-                            onChange={handleVotePhaseTimeChange}
-                            value={votePhaseTime}
+                            placeholder="Voting time"
+                            onChange={handleVotingTimeChange}
+                            value={votingTime}
                         />
                     </Form.Group>
                     <Form.Group controlId="formMin">
@@ -87,7 +87,7 @@ function AddBet(props) {
                 <Button variant="secondary" onClick={handleModalHide}>
                     Close
                 </Button>
-                <Button variant="primary" onClick={() => handleFormSubmit({desc, betPrice, betPhaseTime, votePhaseTime, minBetterCount})}>
+                <Button variant="primary" onClick={() => handleFormSubmit({desc, betPrice, bettingTime, votingTime, minBetterCount})}>
                     Add
                 </Button>
             </Modal.Footer>

@@ -1,5 +1,25 @@
 pragma solidity 0.8.10;
 
+contract Bets{
+    address[] public bets;
+
+    address payable public owner;
+
+    constructor() public payable {
+        owner = payable(msg.sender);
+    }
+
+    function createBet(string memory description, uint256 votePrice, uint256 waitingTime, uint256 expirationTime, uint256 minBetterCount) public returns (address) {
+        Bet bet = new Bet(description, votePrice, waitingTime, expirationTime, minBetterCount, owner);
+        bets.push(address(bet));
+        return address(bet);
+    }
+
+    function getBetsCount() external view returns (uint256) {
+        return bets.length;
+    }
+}
+
 contract Bet {
     uint256 public deployTime = block.timestamp;
     
@@ -11,13 +31,13 @@ contract Bet {
     
     address payable[] private bettersForAddresses;
     mapping (address => bool) private bettersFor;
-    function getBettersForLength() external view returns (uint256) {
+    function getBettersForCount() external view returns (uint256) {
         return bettersForAddresses.length;
     }
     
     address payable[] private bettersAgainstAddresses;
     mapping (address => bool) private bettersAgainst;
-    function getBettersAgainstLength() external view returns (uint256) {
+    function getBettersAgainstCount() external view returns (uint256) {
          return bettersAgainstAddresses.length;
     }
 
@@ -77,6 +97,24 @@ contract Bet {
         }
     }
 
-    
+    function betFor(uint256 amount) payable public {
+        require(msg.value == amount && msg.value == votePrice);
+        require(getState() == State.Initiated);
+        require(!bettersFor[msg.sender] && !bettersAgainst[msg.sender]);
+        bettersFor[msg.sender] = true;
+        bettersForAddresses.push(payable(msg.sender));
+        emit BetUpdate(bettersForAddresses.length, bettersAgainstAddresses.length, votersForCount, votersAgainstCount);
+    }
+
+    function betAgainst(uint256 amount) payable public {
+        require(msg.value == amount && msg.value == votePrice);
+        require(getState() == State.Initiated);
+        require(!bettersFor[msg.sender] && !bettersAgainst[msg.sender]);
+        bettersAgainst[msg.sender] = true;
+        bettersAgainstAddresses.push(payable(msg.sender));
+        emit BetUpdate(bettersForAddresses.length, bettersAgainstAddresses.length, votersForCount, votersAgainstCount);
+    }
+
+
 }
 
