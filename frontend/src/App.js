@@ -65,6 +65,7 @@ class App extends Component {
     let { contract, accounts, web3 } = this.state;
     let betAmount = web3.utils.toWei(betPrice, 'ether');
     await contract.methods.createBet(description, betAmount, waitingTime, expirationTime, minBetterCount).send({ from: accounts[0] });
+    this.getBetsCount();
   };
 
   handleFormSubmit = (newBet) => {
@@ -86,7 +87,7 @@ class App extends Component {
     }
 
     let betCards = [];
-        for (let i = 0; i < this.state.bets; ++i)
+        for (let i = this.state.bets - 1; i >= 0; --i)
         {
             betCards.push(
                 <BetCard
