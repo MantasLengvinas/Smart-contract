@@ -118,9 +118,6 @@ class App extends Component {
             <button onClick={() => this.handleModalShow()} className="btn" style={{margin: "5px"}}>
                 Add bet
             </button>
-            <button onClick={() => this.getBetsCount()} className="btn" style={{margin: "5px"}}>
-                Refresh
-            </button>
           </div>
           <div className="bets-container">
             <img src={betsSVG} alt="BETS" width="20%" height="70px" style={{alignSelf: "left"}} srcset="" />
