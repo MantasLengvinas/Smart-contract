@@ -21,6 +21,8 @@ class BetCard extends Component {
         this.getBet(betIndex, contract, web3, deployedNetwork).then(result => this.setState({
             bet: result
         }));
+        //this.getBet(betIndex, contract, web3, deployedNetwork).then(console.log);
+
     }
 
     getBet = async (index, contract, web3, deployedNetwork) => {
@@ -45,15 +47,14 @@ class BetCard extends Component {
             votersAgainstCount: await betContract.methods.votersAgainstCount().call()
         };
 
+        bet.totalVoters = parseInt(bet.votersForCount) + parseInt(bet.votersAgainstCount);
         bet.totalBetters = parseInt(bet.bettersForCount) + parseInt(bet.bettersAgainstCount);
 
         const currentTime = Math.floor(Date.now() / 1000);
-        if (currentTime - bet.deployTime >= bet.waitingTime) bet.state = 1;
-        else if ((currentTime - bet.deployTime) >= bet.expirationTime) bet.state = 5;
 
         bet.betTimeLeft = parseInt(bet.expirationTime) - (currentTime - bet.deployTime);
-        this.betTimer();
 
+        this.betTimer();
         return bet;
     };
 
@@ -64,11 +65,11 @@ class BetCard extends Component {
             case 1:
                 return "Voting";
             case 2:
-                return "'For' have won";
+                return "Betters for are the winners";
             case 3:
-                return "'Against' have won";
+                return "Betters against are the winners";
             case 4:
-                return "Bet aborted (not enough voters)";
+                return "Bet aborted";
             case 5:
                 return "Finished";
             default:
@@ -88,7 +89,7 @@ class BetCard extends Component {
     }
 
     betTimer = () => {
-        setInterval(() => {
+        let t = setInterval(() => {
             let prevSec = this.state.bet.betTimeLeft;
             const currentTime = Math.floor(Date.now() / 1000);
             this.setState(prevState => ({
@@ -98,7 +99,7 @@ class BetCard extends Component {
                 }
             }))
             
-            if (currentTime - this.state.bet.deployTime >= this.state.bet.waitingTime){
+            if (currentTime - this.state.bet.deployTime >= this.state.bet.waitingTime && currentTime - this.state.bet.deployTime < this.state.bet.expirationTime){
                 this.setState(prevState => ({
                     bet: {                   
                         ...prevState.bet,    
@@ -107,6 +108,8 @@ class BetCard extends Component {
                 }))
             }
             if(prevSec <= 0){
+                clearInterval(t);
+                if(this.state.bet.state < 2)
                 this.setState(prevState => ({
                     bet: {                   
                         ...prevState.bet,    
@@ -114,74 +117,98 @@ class BetCard extends Component {
                     }
                 }))
             }
+
         }, 1000)
     }
 
     betFor(bet) {
-        const { accounts, betIndex, contract, web3, deployedNetwork } = this.props;
+        const { accounts, web3 } = this.props;
         const voteAmount = web3.utils.toWei(bet.votePrice, 'ether');
 
-        bet.betContract.methods.betFor(voteAmount).send({from: accounts[0], value: voteAmount});
-        this.getBet(betIndex, contract, web3, deployedNetwork).then(result => this.setState({
-            bet: result
-        }));
-        
+        bet.betContract.methods.betFor(voteAmount).send({from: accounts[0], value: voteAmount});        
     }
 
     betAgainst(bet) {
-        const { accounts, betIndex, contract, web3, deployedNetwork } = this.props;
+        const { accounts, web3 } = this.props;
         const voteAmount = web3.utils.toWei(bet.votePrice, 'ether');
 
         bet.betContract.methods.betAgainst(voteAmount).send({from: accounts[0], value: voteAmount});
-        this.getBet(betIndex, contract, web3, deployedNetwork).then(result => this.setState({
-            bet: result
-        }));
+    }
+
+    voteFor(bet) {
+        const { accounts } = this.props;
+
+        bet.betContract.methods.voteFor().send({from: accounts[0]});
+    }
+
+    voteAgainst(bet) {
+        const { accounts } = this.props;
+
+        bet.betContract.methods.voteAgainst().send({from: accounts[0]});
+
+    }
+
+    claim(bet) {
+        const { accounts } = this.props;
+        bet.betContract.methods.claim().send({from: accounts[0]});
+        window.location.reload(true);
     }
 
     render() {
 
         const { bet } = this.state;
 
-        return (
-            <div key={this.props.betIndex} className={"betCard " + this.betStatus(bet.state)}>
-                <div className="betCardBody">
-                    <h5>{bet.description}</h5>
-                    <h6>Current state: {this.bettingState(bet.state)}</h6>
-                    <h6>Time left: {bet.betTimeLeft > 0 ? bet.betTimeLeft + " s" : "-"} </h6>
-                    <h6>Vote price: {bet.votePrice} ETH</h6>
-                    <h6>Total betted: {bet.totalBetted} ETH</h6>
-                    <h6>Minimum amount of betters: {bet.minBetterCount}</h6>
-                    <p>Betters for: {bet.totalBetters > 0 ? (bet.bettersForCount * 100 / bet.totalBetters).toFixed(2) : 0} %</p>
-                    <p>Betters against: {bet.totalBetters ? (bet.bettersAgainstCount * 100 / bet.totalBetters).toFixed(2) : 0} %</p>
-                    <p>Voters for: </p>
-                    <p>Voters against: </p>
-                    {bet.state == 0 ? 
-                    <>
-                        <button onClick={() => this.betFor(bet)} className="btn" style={{margin: "5px", display: "inline-block"}}>
-                            Bet for
-                        </button> 
-                        <button onClick={() => this.betAgainst(bet)} className="btn" style={{margin: "5px", display: "inline-block"}}>
-                            Bet against
-                        </button>
-                    </> : <></>}
-                    {bet.state == 1 ?
-                    <>
-                        <button className="btn" style={{margin: "5px", display: "inline-block"}}>
-                            Vote for
-                        </button> 
-                        <button className="btn" style={{margin: "5px", display: "inline-block"}}>
-                            Vote against
-                        </button>
-                    </> : <></>}
-                    {bet.state == 5 ?
-                    <>
-                        <button className="btn" style={{margin: "5px", display: "inline-block"}}>
-                            Claim
-                        </button> 
-                    </> : <></>}
+        if(bet.description == null){
+            return (
+                <div key={this.props.betIndex} className={"betCard " + this.betStatus(bet.state)}>
+                    <div className="betCardBody">
+                        <h5>Bet info is loading..</h5>
+                    </div>
                 </div>
-            </div>
-        );
+            );
+        }
+        else{
+            return (
+                <div key={this.props.betIndex} className={"betCard " + this.betStatus(bet.state)}>
+                    <div className="betCardBody">
+                        <h5>{bet.description}</h5>
+                        <h6>{bet.state <= 1 ? "Current state: " : null}{this.bettingState(bet.state)}</h6>
+                        <h6>Time left: {bet.betTimeLeft > 0 ? bet.betTimeLeft + " s" : "-"} </h6>
+                        <h6>Vote price: {bet.votePrice} ETH</h6>
+                        <h6>{bet.state > 1 ? "Rewards left: " : "Total betted: "}{bet.totalBetted} ETH</h6>
+                        <h6>Minimum amount of betters: {bet.minBetterCount}</h6>
+                        <p>Betters for: {bet.totalBetters > 0 ? (bet.bettersForCount * 100 / bet.totalBetters).toFixed(2) : 0} %</p>
+                        <p>Betters against: {bet.totalBetters ? (bet.bettersAgainstCount * 100 / bet.totalBetters).toFixed(2) : 0} %</p>
+                        <p>Voters for: {bet.totalVoters > 0 ? (bet.votersForCount * 100 / bet.totalVoters).toFixed(2) : 0} %</p>
+                        <p>Voters against: {bet.totalVoters > 0 ? (bet.votersAgainstCount * 100 / bet.totalVoters).toFixed(2) : 0} % </p>
+                        {bet.state == 0 ? 
+                        <>
+                            <button onClick={() => this.betFor(bet)} className="btn" style={{margin: "5px", display: "inline-block"}}>
+                                Bet for
+                            </button> 
+                            <button onClick={() => this.betAgainst(bet)} className="btn" style={{margin: "5px", display: "inline-block"}}>
+                                Bet against
+                            </button>
+                        </> : <></>}
+                        {bet.state == 1 ?
+                        <>
+                            <button onClick={() => this.voteFor(bet)} className="btn" style={{margin: "5px", display: "inline-block"}}>
+                                Vote for
+                            </button> 
+                            <button onClick={() => this.voteAgainst(bet)} className="btn" style={{margin: "5px", display: "inline-block"}}>
+                                Vote against
+                            </button>
+                        </> : <></>}
+                        {bet.state > 1 && bet.state != 4 ?
+                        <>
+                            <button onClick={() => this.claim(bet)} className="btn" style={{margin: "5px", display: "inline-block"}}>
+                                Claim
+                            </button> 
+                        </> : <></>}
+                    </div>
+                </div>
+            );
+        }
     }
 }
 

@@ -76,7 +76,6 @@ class App extends Component {
   handleFormSubmit = (newBet) => {
     this.addBet(newBet.desc, newBet.betPrice, newBet.bettingTime, parseInt(newBet.bettingTime)+parseInt(newBet.votingTime), newBet.minBetterCount);
     this.setState({showModal: false});
-    this.getBetsCount();
   };
 
   getBetsCount = async () => {
@@ -88,11 +87,11 @@ class App extends Component {
   render() {
 
     if (!this.state.web3) {
-      return <div>Loading Web3, accounts, and contract...</div>;
+      return <div>Loading data</div>;
     }
 
     let betCards = [];
-        for (let i = this.state.bets - 1; i >= 0; --i)
+        for (let i = 0; i < this.state.bets; i++)
         {
             betCards.push(
                 <BetCard

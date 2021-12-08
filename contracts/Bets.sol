@@ -25,7 +25,6 @@ contract Bet {
     
     enum State { Initiated, Pending, ForWon, AgainstWon, Aborted } //Bet states
 
-    // Address that receives a small percentage of all bets
     address payable private taxAddress;
     uint128 constant tax = 10;
     
@@ -48,8 +47,7 @@ contract Bet {
     uint256 public votersFromAgainstCount;
     uint256 public votersForCount;
     uint256 public votersAgainstCount;
-    
-    // Contract parameters
+
     string public description;
     uint256 public waitingTime;
     uint256 public expirationTime;
@@ -73,15 +71,15 @@ contract Bet {
     }
 
     function getState() public view returns (State){
-        uint256 timeStamp = block.timestamp - deployTime;
+        uint256 timePassed = block.timestamp - deployTime;
 
-        if(timeStamp < waitingTime){
+        if(timePassed < waitingTime){
             return State.Initiated;
         }
-        else if(timeStamp >= waitingTime && timeStamp < expirationTime){
+        else if(timePassed >= waitingTime && timePassed < expirationTime){
             return State.Pending;
         }
-        else if(timeStamp >= expirationTime){
+        else if(timePassed >= expirationTime){
             if(votersForCount > votersAgainstCount){
                 return State.ForWon;
             }
@@ -119,6 +117,58 @@ contract Bet {
         emit BetUpdate(bettersForAddresses.length, bettersAgainstAddresses.length, votersForCount, votersAgainstCount);
     }
 
+    function voteFor() public {
+        require((bettersFor[msg.sender] || bettersAgainst[msg.sender]) && !outcomeVoters[msg.sender]);
+        require(getState() == State.Pending);
+        outcomeVoters[msg.sender] = true;
+        outcomeVotersCount++;
+        if (bettersFor[msg.sender]) votersFromForCount++;
+        if (bettersAgainst[msg.sender]) votersFromAgainstCount++;
+        votersForCount++;
+        emit BetUpdate(bettersForAddresses.length, bettersAgainstAddresses.length, votersForCount, votersAgainstCount);
+    }
+    
+    function voteAgainst() public {
+        require((bettersFor[msg.sender] || bettersAgainst[msg.sender]) && !outcomeVoters[msg.sender]);
+        require(getState() == State.Pending);
+        outcomeVoters[msg.sender] = true;
+        outcomeVotersCount++;
+        if (bettersFor[msg.sender]) votersFromForCount++;
+        if (bettersAgainst[msg.sender]) votersFromAgainstCount++;
+        votersAgainstCount++;
+        emit BetUpdate(bettersForAddresses.length, bettersAgainstAddresses.length, votersForCount, votersAgainstCount);
+    }
+
+    function claim() public {
+        require(address(this).balance > 0);
+        State state = getState();
+        require (state == State.ForWon || state == State.AgainstWon || state == State.Aborted);
+        if (state == State.Aborted) {
+            for (uint256 i = 0; i < bettersForAddresses.length; i++) {
+                bettersForAddresses[i].transfer(votePrice);
+            }
+            for (uint256 i = 0; i < bettersAgainstAddresses.length; i++) {
+                bettersAgainstAddresses[i].transfer(votePrice);
+            }
+            taxAddress.transfer(address(this).balance);
+        }
+        else if (state == State.ForWon) {
+            taxAddress.transfer(address(this).balance * tax / 1000);
+            uint256 reward = address(this).balance / bettersForAddresses.length;
+            for (uint256 i = 0; i < bettersForAddresses.length; i++) {
+                bettersForAddresses[i].transfer(reward);
+            }
+            taxAddress.transfer(address(this).balance);
+        }
+        else if (state == State.AgainstWon) {
+            taxAddress.transfer(address(this).balance * tax / 1000);
+            uint256 reward = address(this).balance / bettersAgainstAddresses.length;
+            for (uint256 i = 0; i < bettersAgainstAddresses.length; i++) {
+                bettersAgainstAddresses[i].transfer(reward);
+            }
+            taxAddress.transfer(address(this).balance);
+        }
+    }
 
 }
 
