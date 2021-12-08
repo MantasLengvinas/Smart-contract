@@ -97,6 +97,10 @@ contract Bet {
         }
     }
 
+    function getBalance() external view returns(uint256) {
+        return address(this).balance;
+    }
+
     function betFor(uint256 amount) payable public {
         require(msg.value == amount && msg.value == votePrice);
         require(getState() == State.Initiated);

@@ -5,7 +5,12 @@ class Header extends Component {
     render() {
         return (
             <div className="App-header">
-                <img src={logo} alt="" width="100px" height="65px" />
+                <div className="logo">
+                    <img src={logo} alt="bet" width="100px" height="65px" />
+                </div>  
+                <div className="balance">
+                    <span>Account balance: <i>{this.props.balance}</i> ETH</span>
+                </div>
             </div>
         );
     }

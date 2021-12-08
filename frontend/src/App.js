@@ -22,7 +22,8 @@ class App extends Component {
       contract: null,
       web3: null,
       deployedNetwork: null,
-      bets: 0
+      bets: 0,
+      accountBalance: 0
     }
   }
 
@@ -40,6 +41,10 @@ class App extends Component {
           Contract.abi,
             deployedNetwork && deployedNetwork.address
         );
+
+        web3.eth.getBalance(accounts[0]).then(result => this.setState({
+          accountBalance: web3.utils.fromWei(result, "ether")
+        }));
 
         this.setState({accounts, contract: instance, web3, deployedNetwork, bets: 0});
     } catch (error) {
@@ -102,7 +107,7 @@ class App extends Component {
 
     return (
       <div className="App">
-        <Header />
+        <Header balance={this.state.accountBalance} />
         <AddBet
             showModal={this.state.showModal}
             handleModalHide={this.handleModalHide}
